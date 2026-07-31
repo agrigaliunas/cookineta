@@ -6,6 +6,12 @@ import { FRANJAS, FLUJO_ESTADOS, type EstadoPedido } from "@/lib/constantes";
 import { diaCorto } from "@/lib/fechas";
 import { notificarPedido } from "@/lib/whatsapp";
 import type { PayloadCrearPedido, ResultadoCrearPedido } from "@/lib/types";
+import type { Resultado } from "./stock";
+
+function refrescar() {
+  revalidatePath("/admin", "layout");
+  revalidatePath("/");
+}
 
 export type RespuestaPedido =
   | {
@@ -49,6 +55,8 @@ export async function crearPedido(
     cliente: payload.cliente_nombre,
     telefono: payload.cliente_telefono,
     direccion: payload.direccion,
+    // La forma de entrega la confirma la base, no el navegador.
+    entrega: r.entrega,
     zona: r.zona,
     hub: r.hub,
     dia,
@@ -62,43 +70,74 @@ export async function crearPedido(
   });
 
   // El stock cambió: la vitrina y el panel tienen que reflejarlo.
-  revalidatePath("/");
-  revalidatePath("/admin", "layout");
+  refrescar();
 
   return {
     ok: true,
     codigo: r.codigo,
     waUrl,
     total: r.total,
-    resumen: `Entrega en ${r.zona} (${r.hub}) el ${dia}, ${franja}.`,
+    resumen:
+      r.entrega === "take_away"
+        ? `Lo retirás en ${r.hub} el ${dia}, ${franja}.`
+        : `Entrega en ${r.zona} (${r.hub}) el ${dia}, ${franja}.`,
   };
 }
 
-/** Mueve el pedido al siguiente estado de la cadena. */
-export async function avanzarPedido(pedidoId: string, actual: EstadoPedido) {
+/**
+ * Mueve el pedido al siguiente estado de la cadena.
+ *
+ * El salto a 'confirmado' no es un update cualquiera: mientras el pedido estuvo
+ * sin confirmar su reserva pudo vencer y otra clienta llevarse esas unidades.
+ * Por eso ese paso va por la RPC confirmar_pedido, que revalida el stock con el
+ * stock bloqueado. Los demás estados no tocan disponibilidad y van derecho.
+ */
+export async function avanzarPedido(
+  pedidoId: string,
+  actual: EstadoPedido,
+): Promise<Resultado> {
   const i = FLUJO_ESTADOS.indexOf(actual);
-  if (i === -1 || i === FLUJO_ESTADOS.length - 1) return;
+  if (i === -1 || i === FLUJO_ESTADOS.length - 1) return { ok: true };
 
   const siguiente = FLUJO_ESTADOS[i + 1];
   const supabase = await supabaseServer();
 
-  await supabase
-    .from("pedidos")
-    .update({
-      estado: siguiente,
-      ...(siguiente === "confirmado" ? { confirmado_en: new Date().toISOString() } : {}),
-    })
-    .eq("id", pedidoId);
+  if (siguiente === "confirmado") {
+    const { error } = await supabase.rpc("confirmar_pedido", {
+      p_pedido_id: pedidoId,
+    });
 
-  revalidatePath("/admin", "layout");
-  revalidatePath("/");
+    if (error) {
+      return {
+        ok: false,
+        error:
+          error.message?.replace(/^.*?ERROR:\s*/i, "") ||
+          "No pudimos confirmar el pedido. Probá de nuevo.",
+      };
+    }
+  } else {
+    const { error } = await supabase
+      .from("pedidos")
+      .update({ estado: siguiente })
+      .eq("id", pedidoId);
+
+    if (error) return { ok: false, error: error.message };
+  }
+
+  refrescar();
+  return { ok: true };
 }
 
 /** Cancelar libera las unidades reservadas: v_disponibilidad ignora los cancelados. */
-export async function cancelarPedido(pedidoId: string) {
+export async function cancelarPedido(pedidoId: string): Promise<Resultado> {
   const supabase = await supabaseServer();
-  await supabase.from("pedidos").update({ estado: "cancelado" }).eq("id", pedidoId);
+  const { error } = await supabase
+    .from("pedidos")
+    .update({ estado: "cancelado" })
+    .eq("id", pedidoId);
 
-  revalidatePath("/admin", "layout");
-  revalidatePath("/");
+  if (error) return { ok: false, error: error.message };
+
+  refrescar();
+  return { ok: true };
 }

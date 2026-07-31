@@ -1,4 +1,5 @@
 import { money } from "./money";
+import type { FormaEntrega } from "./constantes";
 
 /**
  * Número del negocio, en formato internacional sin `+` ni separadores.
@@ -44,7 +45,9 @@ export type ResumenPedido = {
   codigo: number;
   cliente: string;
   telefono: string;
+  /** Vacía cuando retira. */
   direccion: string;
+  entrega: FormaEntrega;
   zona: string;
   hub: string;
   dia: string;
@@ -70,18 +73,25 @@ export function mensajeNuevoPedido(p: ResumenPedido): string {
     (l) => `• ${l.cantidad}× ${l.nombre} — ${money(l.total)}`,
   );
 
+  const retira = p.entrega === "take_away";
+
   return [
     `¡Hola La Cookineta! Hice el pedido *#${p.codigo}* desde la web.`,
-    "",
+    "🍪🍪🍪",
     [...cajas, ...sueltas].join("\n"),
-    "",
-    `Subtotal: ${money(p.subtotal)}`,
-    `Envío: ${p.envio === 0 ? "sin cargo" : money(p.envio)}`,
-    `*Total: ${money(p.total)}*`,
+    "🍪🍪🍪",
+    `💵 Subtotal: ${money(p.subtotal)}`,
+    retira
+      ? "🛍️ Retiro en el local (sin cargo)"
+      : `🛵 Envío: ${p.envio === 0 ? "sin cargo" : money(p.envio)}`,
+    `💰 *Total: ${money(p.total)}*`,
     "",
     `Nombre: ${p.cliente}`,
-    `Entrega: ${p.zona} (${p.hub}) — ${p.dia}, ${p.franja}`,
-    `Dirección: ${p.direccion}`,
+    retira
+      ? `Retiro en ${p.hub} — ${p.dia}, ${p.franja}`
+      : `Entrega: ${p.zona} (${p.hub}) — ${p.dia}, ${p.franja}`,
+    // Quien retira no dio dirección: la línea directamente no va.
+    retira ? null : `Dirección: ${p.direccion}`,
     p.nota ? `Nota: ${p.nota}` : null,
     "",
     "Quedo esperando la confirmación. ¡Gracias!",
@@ -97,13 +107,19 @@ export function mensajeConfirmacion(p: {
   dia: string;
   franja: string;
   total: number;
+  entrega: FormaEntrega;
+  hub: string;
 }): string {
+  const retira = p.entrega === "take_away";
+
   return [
     `¡Hola ${p.cliente}! Soy de La Cookineta 🍪`,
     "",
     `Te confirmo el pedido *#${p.codigo}*.`,
-    `Te lo llevamos el ${p.dia} en la franja de ${p.franja}.`,
-    `Total: ${money(p.total)} (efectivo o transferencia al recibir).`,
+    retira
+      ? `Lo pasás a buscar por ${p.hub} el ${p.dia}, en la franja de ${p.franja}.`
+      : `Te lo llevamos el ${p.dia} en la franja de ${p.franja}.`,
+    `Total: ${money(p.total)} (efectivo o transferencia al ${retira ? "retirar" : "recibir"}).`,
     "",
     "Te escribo el día anterior con el horario más exacto. ¡Gracias!",
   ].join("\n");

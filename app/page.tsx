@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import Catalogo from "@/components/cliente/Catalogo";
 import { cargarCatalogo } from "@/lib/consultas";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -20,6 +21,9 @@ export default async function Home() {
         minHeight: "100vh",
         background: "var(--color-bg)",
         color: "var(--color-text)",
+        // El footer queda abajo de todo aunque la vitrina sea corta.
+        display: "grid",
+        gridTemplateRows: "auto 1fr auto",
       }}
     >
       <Header
@@ -31,6 +35,7 @@ export default async function Home() {
       <div className="pagina">
         {datos ? <Catalogo datos={datos} /> : <SinHorneada />}
       </div>
+      <Footer />
     </div>
   );
 }

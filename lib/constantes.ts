@@ -5,6 +5,14 @@ export const FRANJAS = [
   "Noche 18 a 21",
 ] as const;
 
+/** Cómo recibe el pedido: se lo llevamos, o lo pasa a buscar por el hub. */
+export type FormaEntrega = "envio" | "take_away";
+
+export const ETIQUETA_ENTREGA: Record<FormaEntrega, string> = {
+  envio: "Envío a domicilio",
+  take_away: "Retiro en el local",
+};
+
 export type EstadoPedido =
   | "pendiente_whatsapp"
   | "confirmado"
@@ -40,6 +48,42 @@ export const TONO_ESTADO: Record<EstadoPedido, [string, string]> = {
   entregado: ["var(--color-neutral-200)", "var(--color-neutral-700)"],
   cancelado: ["var(--color-neutral-100)", "var(--color-neutral-500)"],
 };
+
+/**
+ * Techo de `configuracion.reserva_minutos`, una semana. Espeja el check de la
+ * migración 20260731020000: si cambia uno, cambian los dos.
+ */
+export const RESERVA_MINUTOS_MAX = 10080;
+
+/** Los presets del selector de vencimiento de reservas. */
+export const RESERVA_PRESETS: { minutos: number; label: string }[] = [
+  { minutos: 0, label: "Sin reserva" },
+  { minutos: 30, label: "30 minutos" },
+  { minutos: 60, label: "1 hora" },
+  { minutos: 180, label: "3 horas" },
+  { minutos: 720, label: "12 horas" },
+  { minutos: 1440, label: "1 día" },
+  { minutos: 4320, label: "3 días" },
+];
+
+/** '1 h 30 min' — para mostrar un `reserva_minutos` en texto. */
+export function duracionLarga(minutos: number): string {
+  if (minutos <= 0) return "sin reserva";
+
+  const dias = Math.floor(minutos / 1440);
+  const horas = Math.floor((minutos % 1440) / 60);
+  const mins = minutos % 60;
+
+  return (
+    [
+      dias && `${dias} ${dias === 1 ? "día" : "días"}`,
+      horas && `${horas} h`,
+      mins && `${mins} min`,
+    ]
+      .filter(Boolean)
+      .join(" ") || "sin reserva"
+  );
+}
 
 export const ESTADO_HORNEADA = ["borrador", "abierta", "cerrada"] as const;
 export type EstadoHorneada = (typeof ESTADO_HORNEADA)[number];

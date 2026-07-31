@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
   ETIQUETA_ESTADO,
   FLUJO_ESTADOS,
   TONO_ESTADO,
   pill,
   type EstadoPedido,
+  type FormaEntrega,
 } from "@/lib/constantes";
 import { money } from "@/lib/money";
 import { avanzarPedido, cancelarPedido } from "@/actions/pedidos";
@@ -24,13 +25,23 @@ export type CajaPedido = {
   contenido: string;
 };
 
+/** Estado de la reserva de stock. Sólo la tienen los pedidos sin confirmar. */
+export type ReservaPedido = {
+  /** Ya pasó el rato: esas unidades volvieron a la vitrina. */
+  vencida: boolean;
+  texto: string;
+};
+
 export type PedidoAdmin = {
   id: string;
   codigo: number;
   cliente: string;
   telefono: string;
+  /** Dirección real, o 'Retira en Martínez' si es take away. */
   direccion: string;
   nota: string;
+  entrega: FormaEntrega;
+  hub: string;
   zonaId: string;
   zonaLabel: string;
   dia: string;
@@ -40,6 +51,7 @@ export type PedidoAdmin = {
   cajas: CajaPedido[];
   total: number;
   estado: EstadoPedido;
+  reserva: ReservaPedido | null;
 };
 
 export default function ListaPedidos({
@@ -113,6 +125,7 @@ export default function ListaPedidos({
 
 function TarjetaPedido({ pedido }: { pedido: PedidoAdmin }) {
   const [pendiente, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   const i = FLUJO_ESTADOS.indexOf(pedido.estado);
   const cerrado = pedido.estado === "entregado" || pedido.estado === "cancelado";
@@ -127,6 +140,8 @@ function TarjetaPedido({ pedido }: { pedido: PedidoAdmin }) {
       dia: pedido.dia,
       franja: pedido.franja,
       total: pedido.total,
+      entrega: pedido.entrega,
+      hub: pedido.hub,
     }),
   );
 
@@ -152,6 +167,10 @@ function TarjetaPedido({ pedido }: { pedido: PedidoAdmin }) {
           >
             {pedido.zonaLabel}
           </span>
+          {/* Los que retiran no entran al reparto: tiene que saltar a la vista. */}
+          {pedido.entrega === "take_away" && (
+            <span className="tag tag-neutral">🛍️ Retira</span>
+          )}
         </div>
         <div style={{ fontSize: 13, color: "var(--color-neutral-700)" }}>
           {pedido.direccion} · {pedido.dia} · {pedido.franja}
@@ -196,6 +215,36 @@ function TarjetaPedido({ pedido }: { pedido: PedidoAdmin }) {
             Nota: {pedido.nota}
           </div>
         )}
+        {pedido.reserva && (
+          <div
+            style={{
+              fontSize: 12,
+              color: pedido.reserva.vencida
+                ? "var(--color-neutral-600)"
+                : "var(--color-accent-700)",
+            }}
+          >
+            {pedido.reserva.vencida ? "⏱ " : ""}
+            {pedido.reserva.texto}
+          </div>
+        )}
+        {error && (
+          <div
+            role="alert"
+            style={{
+              fontSize: 13,
+              color: "var(--color-accent-2-800)",
+              background: "var(--color-accent-2-100)",
+              border: "1px solid var(--color-accent-2-300)",
+              borderRadius: "var(--radius-md)",
+              padding: "var(--space-2) var(--space-3)",
+              justifySelf: "start",
+              textWrap: "pretty",
+            }}
+          >
+            {error}
+          </div>
+        )}
         <a
           href={waCliente}
           target="_blank"
@@ -236,11 +285,13 @@ function TarjetaPedido({ pedido }: { pedido: PedidoAdmin }) {
               type="button"
               className="btn btn-secondary"
               disabled={pendiente}
-              onClick={() =>
-                startTransition(() => {
-                  void avanzarPedido(pedido.id, pedido.estado);
-                })
-              }
+              onClick={() => {
+                setError(null);
+                startTransition(async () => {
+                  const r = await avanzarPedido(pedido.id, pedido.estado);
+                  if (!r.ok) setError(r.error);
+                });
+              }}
               style={{
                 borderRadius: 999,
                 padding: "var(--space-2) var(--space-4)",
@@ -261,8 +312,10 @@ function TarjetaPedido({ pedido }: { pedido: PedidoAdmin }) {
                     `¿Cancelar el pedido #${pedido.codigo} de ${pedido.cliente}? Las unidades vuelven al stock.`,
                   )
                 ) {
-                  startTransition(() => {
-                    void cancelarPedido(pedido.id);
+                  setError(null);
+                  startTransition(async () => {
+                    const r = await cancelarPedido(pedido.id);
+                    if (!r.ok) setError(r.error);
                   });
                 }
               }}

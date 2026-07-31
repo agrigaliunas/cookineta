@@ -5,7 +5,11 @@
  * Si cambiás el esquema, regeneralos con:
  *   npx supabase gen types typescript --local > lib/types.ts
  */
-import type { EstadoHorneada, EstadoPedido } from "./constantes";
+import type {
+  EstadoHorneada,
+  EstadoPedido,
+  FormaEntrega,
+} from "./constantes";
 
 export type Zona = {
   id: string;
@@ -21,6 +25,14 @@ export type Categoria = {
   nombre: string;
   orden: number;
   activa: boolean;
+};
+
+/** Fila única de ajustes del negocio. */
+export type Configuracion = {
+  id: boolean;
+  /** Cuánto retiene el stock un pedido sin confirmar. 0 = no reserva nada. */
+  reserva_minutos: number;
+  actualizada_en: string;
 };
 
 export type Producto = {
@@ -101,6 +113,15 @@ export type Disponibilidad = {
   disponible: number;
 };
 
+/** Vencimiento de la reserva de un pedido sin confirmar. */
+export type Reserva = {
+  pedido_id: string;
+  horneada_id: string;
+  reserva_minutos: number;
+  vence_en: string;
+  vencida: boolean;
+};
+
 export type Pedido = {
   id: string;
   codigo: number;
@@ -110,8 +131,10 @@ export type Pedido = {
   franja_idx: number;
   cliente_nombre: string;
   cliente_telefono: string;
+  /** Vacía cuando la clienta retira: no hay a dónde llevarlo. */
   direccion: string;
   nota: string;
+  entrega: FormaEntrega;
   subtotal: number;
   envio: number;
   total: number;
@@ -154,7 +177,9 @@ export type ResultadoCrearPedido = {
   subtotal: number;
   envio: number;
   total: number;
+  entrega: FormaEntrega;
   zona: string;
+  /** Dónde se retira o desde dónde sale el reparto: 'Martínez'. */
   hub: string;
   fecha: string;
   lineas: { nombre: string; cantidad: number; total: number }[];
@@ -189,6 +214,12 @@ export type Database = {
         Row: Categoria;
         Insert: Partial<Categoria> & Pick<Categoria, "nombre">;
         Update: Partial<Categoria>;
+        Relationships: [];
+      };
+      configuracion: {
+        Row: Configuracion;
+        Insert: Partial<Configuracion>;
+        Update: Partial<Configuracion>;
         Relationships: [];
       };
       productos: {
@@ -272,12 +303,17 @@ export type Database = {
     };
     Views: {
       v_disponibilidad: { Row: Disponibilidad; Relationships: [] };
+      v_reservas: { Row: Reserva; Relationships: [] };
       v_ventas: { Row: VentaLinea; Relationships: [] };
     };
     Functions: {
       crear_pedido: {
         Args: { payload: PayloadCrearPedido };
         Returns: ResultadoCrearPedido;
+      };
+      confirmar_pedido: {
+        Args: { p_pedido_id: string };
+        Returns: void;
       };
     };
     Enums: Record<string, never>;
@@ -290,8 +326,10 @@ export type PayloadCrearPedido = {
   franja_idx: number;
   cliente_nombre: string;
   cliente_telefono: string;
+  /** Puede ir vacía si `entrega` es 'take_away'. */
   direccion: string;
   nota: string;
+  entrega: FormaEntrega;
   /** Cookies sueltas. */
   items: { producto_id: string; cantidad: number }[];
   /** Cajas armadas: cada una con las cookies que eligió quien compra. */

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Catalogo as DatosCatalogo, ComboVitrina } from "@/lib/consultas";
-import { FRANJAS, pill } from "@/lib/constantes";
+import { FRANJAS, pill, type FormaEntrega } from "@/lib/constantes";
 import { money } from "@/lib/money";
 import {
   CARRITO_VACIO,
@@ -42,6 +42,7 @@ export default function Catalogo({ datos }: { datos: DatosCatalogo }) {
   const [zonaId, setZonaId] = useState<string | null>(null);
   const [diaId, setDiaId] = useState<string | null>(null);
   const [franjaIdx, setFranjaIdx] = useState<number | null>(null);
+  const [entrega, setEntrega] = useState<FormaEntrega>("envio");
   const [carrito, setCarrito] = useState<Carrito>(CARRITO_VACIO);
   const [paso, setPaso] = useState<Paso>("catalogo");
   const [confirmado, setConfirmado] = useState<PedidoConfirmado | null>(null);
@@ -102,11 +103,14 @@ export default function Catalogo({ datos }: { datos: DatosCatalogo }) {
   const unidades = unidadesCarrito(carrito);
   const lineas = lineasResumen(carrito, datos);
 
-  const envio = !zona
-    ? 0
-    : subtotal >= datos.horneada.envio_gratis_desde
+  // Retirar por el hub no cuesta nada. Espeja la cuenta de crear_pedido, que es
+  // la que manda: acá sólo se muestra.
+  const envio =
+    !zona || entrega === "take_away"
       ? 0
-      : zona.envio;
+      : subtotal >= datos.horneada.envio_gratis_desde
+        ? 0
+        : zona.envio;
 
   const total = subtotal + envio;
 
@@ -173,7 +177,9 @@ export default function Catalogo({ datos }: { datos: DatosCatalogo }) {
 
   const resumenEntrega = zona
     ? dia
-      ? `${zona.nombre} · ${zona.hub} · ${dia.etiqueta}`
+      ? entrega === "take_away"
+        ? `Retirás en ${zona.hub} · ${dia.etiqueta}`
+        : `Envío en ${zona.nombre} · desde ${zona.hub} · ${dia.etiqueta}`
       : `${zona.nombre} · elegí un día de entrega`
     : "Elegí tu zona para ver días y envío";
 
@@ -194,6 +200,7 @@ export default function Catalogo({ datos }: { datos: DatosCatalogo }) {
       cliente_telefono: form.telefono,
       direccion: form.direccion,
       nota: form.nota,
+      entrega,
       ...payloadDeCarrito(carrito),
     });
 
@@ -253,6 +260,11 @@ export default function Catalogo({ datos }: { datos: DatosCatalogo }) {
     return (
       <Checkout
         resumenEntrega={resumenEntrega}
+        entrega={entrega}
+        onEntrega={setEntrega}
+        hub={zona?.hub ?? ""}
+        envioZona={zona?.envio ?? 0}
+        envioGratisDesde={datos.horneada.envio_gratis_desde}
         franjasDelDia={dia ? dia.franjas : []}
         franjaIdx={franjaIdx}
         onFranja={setFranjaIdx}
@@ -423,6 +435,52 @@ export default function Catalogo({ datos }: { datos: DatosCatalogo }) {
                     );
                   })}
                 </div>
+
+                {/*
+                  Aparece recién con el día elegido: hasta ahí no hay nada que
+                  decidir, y "retirar el jueves" se entiende mejor que "retirar".
+                */}
+                {dia && (
+                  <>
+                    <div
+                      style={{ height: 1, background: "var(--color-divider)" }}
+                    />
+                    <div style={{ display: "grid", gap: "var(--space-2)" }}>
+                      <div
+                        style={{
+                          fontFamily: "var(--font-heading)",
+                          fontSize: 15,
+                        }}
+                      >
+                        ¿Cómo lo querés recibir el {dia.etiqueta.toLowerCase()}?
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "var(--space-2)",
+                        }}
+                      >
+                        <OpcionEntrega
+                          activo={entrega === "envio"}
+                          onClick={() => setEntrega("envio")}
+                          titulo="Envío a domicilio"
+                          detalle={
+                            subtotal >= datos.horneada.envio_gratis_desde
+                              ? "sin cargo por el monto"
+                              : money(zona.envio)
+                          }
+                        />
+                        <OpcionEntrega
+                          activo={entrega === "take_away"}
+                          onClick={() => setEntrega("take_away")}
+                          titulo="Retiro en el local"
+                          detalle={`${zona.hub} · sin cargo`}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -552,7 +610,7 @@ export default function Catalogo({ datos }: { datos: DatosCatalogo }) {
           <div style={{ display: "grid", gap: "var(--space-2)", fontSize: 14 }}>
             <Fila etiqueta="Subtotal" valor={money(subtotal)} />
             <Fila
-              etiqueta="Envío"
+              etiqueta={entrega === "take_away" ? "Retiro" : "Envío"}
               valor={!zona ? "—" : envio === 0 ? "sin cargo" : money(envio)}
             />
             <div
@@ -590,9 +648,11 @@ export default function Catalogo({ datos }: { datos: DatosCatalogo }) {
               textWrap: "pretty",
             }}
           >
-            {puedeContinuar
-              ? `Reservás las unidades al confirmar. Envío sin cargo desde ${money(datos.horneada.envio_gratis_desde)}.`
-              : "Necesitás zona, día y al menos una galleta para continuar."}
+            {!puedeContinuar
+              ? "Necesitás zona, día y al menos una galleta para continuar."
+              : entrega === "take_away"
+                ? `Reservás las unidades al confirmar. Lo retirás en ${zona.hub}.`
+                : `Reservás las unidades al confirmar. Envío sin cargo desde ${money(datos.horneada.envio_gratis_desde)}.`}
           </div>
         </div>
       </div>
@@ -608,6 +668,40 @@ export default function Catalogo({ datos }: { datos: DatosCatalogo }) {
         />
       )}
     </>
+  );
+}
+
+function OpcionEntrega({
+  activo,
+  onClick,
+  titulo,
+  detalle,
+}: {
+  activo: boolean;
+  onClick: () => void;
+  titulo: string;
+  detalle: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={activo}
+      style={{
+        cursor: "pointer",
+        textAlign: "left",
+        fontFamily: "var(--font-body)",
+        fontSize: 14,
+        padding: "var(--space-3) var(--space-4)",
+        borderRadius: "var(--radius-md)",
+        display: "grid",
+        gap: 2,
+        ...pill(activo),
+      }}
+    >
+      <span style={{ fontWeight: 600 }}>{titulo}</span>
+      <span style={{ fontSize: 12, opacity: 0.8 }}>{detalle}</span>
+    </button>
   );
 }
 

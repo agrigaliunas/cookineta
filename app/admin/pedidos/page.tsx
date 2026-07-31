@@ -1,9 +1,14 @@
 import ListaPedidos, { type PedidoAdmin } from "@/components/admin/ListaPedidos";
 import { horneadaAbierta } from "@/lib/consultas";
 import { supabaseServer } from "@/lib/supabase/server";
-import { diaCorto } from "@/lib/fechas";
-import { FRANJAS, type EstadoPedido } from "@/lib/constantes";
-import type { Zona } from "@/lib/types";
+import { diaCorto, momentoCorto } from "@/lib/fechas";
+import {
+  FRANJAS,
+  duracionLarga,
+  type EstadoPedido,
+  type FormaEntrega,
+} from "@/lib/constantes";
+import type { Reserva, Zona } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pedidos · La Cookineta" };
@@ -17,6 +22,7 @@ type FilaPedido = {
   cliente_telefono: string;
   direccion: string;
   nota: string;
+  entrega: FormaEntrega;
   total: number;
   estado: EstadoPedido;
   creado_en: string;
@@ -46,18 +52,52 @@ export default async function PedidosPage({
     );
   }
 
-  const [{ data: pedidos }, { data: zonas }] = await Promise.all([
-    supabase
-      .from("pedidos")
-      .select(
-        "id, codigo, zona_id, franja_idx, cliente_nombre, cliente_telefono, direccion, nota, total, estado, creado_en, horneada_dias(fecha), pedido_items(nombre, cantidad, pedido_combo_id), pedido_combos(id, nombre, cantidad)",
-      )
-      .eq("horneada_id", horneada.id)
-      .order("creado_en", { ascending: false }),
-    supabase.from("zonas").select("*").order("orden"),
-  ]);
+  const [{ data: pedidos }, { data: zonas }, { data: reservas }] =
+    await Promise.all([
+      supabase
+        .from("pedidos")
+        .select(
+          "id, codigo, zona_id, franja_idx, cliente_nombre, cliente_telefono, direccion, nota, entrega, total, estado, creado_en, horneada_dias(fecha), pedido_items(nombre, cantidad, pedido_combo_id), pedido_combos(id, nombre, cantidad)",
+        )
+        .eq("horneada_id", horneada.id)
+        .order("creado_en", { ascending: false }),
+      supabase.from("zonas").select("*").order("orden"),
+      // Sólo trae los que están sin confirmar: son los únicos con vencimiento.
+      supabase.from("v_reservas").select("*").eq("horneada_id", horneada.id),
+    ]);
 
   const porZona = new Map((zonas ?? []).map((z: Zona) => [z.id, z]));
+  const porPedido = new Map(
+    (reservas ?? []).map((r: Reserva) => [r.pedido_id, r]),
+  );
+
+  /**
+   * El "¿venció?" lo contesta Postgres (v_reservas), no el reloj de acá: es el
+   * mismo que decide si esas unidades volvieron o no a la vitrina.
+   */
+  function reservaDe(pedidoId: string): PedidoAdmin["reserva"] {
+    const r = porPedido.get(pedidoId);
+    if (!r) return null;
+
+    if (r.reserva_minutos === 0) {
+      return {
+        vencida: true,
+        texto: "No reserva stock (vencimiento configurado en 0)",
+      };
+    }
+
+    const cuando = momentoCorto(r.vence_en);
+
+    return r.vencida
+      ? {
+          vencida: true,
+          texto: `Reserva vencida el ${cuando} — el stock volvió a la vitrina`,
+        }
+      : {
+          vencida: false,
+          texto: `Reserva el stock hasta el ${cuando} (${duracionLarga(r.reserva_minutos)})`,
+        };
+  }
 
   const filas: PedidoAdmin[] = ((pedidos ?? []) as unknown as FilaPedido[]).map(
     (p) => {
@@ -67,8 +107,14 @@ export default async function PedidosPage({
         codigo: p.codigo,
         cliente: p.cliente_nombre,
         telefono: p.cliente_telefono,
-        direccion: p.direccion,
+        // Quien retira no dejó dirección: en su lugar va el punto de retiro.
+        direccion:
+          p.entrega === "take_away"
+            ? `Retira en ${z?.hub ?? p.zona_id}`
+            : p.direccion,
         nota: p.nota,
+        entrega: p.entrega,
+        hub: z?.hub ?? p.zona_id,
         zonaId: p.zona_id,
         zonaLabel: z ? `${z.nombre} · ${z.hub}` : p.zona_id,
         dia: p.horneada_dias ? diaCorto(p.horneada_dias.fecha) : "—",
@@ -89,6 +135,7 @@ export default async function PedidosPage({
         })),
         total: p.total,
         estado: p.estado,
+        reserva: reservaDe(p.id),
       };
     },
   );

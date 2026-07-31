@@ -68,6 +68,23 @@ export type Catalogo = {
   combos: ComboVitrina[];
 };
 
+/**
+ * Cuántos minutos retiene el stock un pedido sin confirmar.
+ *
+ * Sólo la admin puede leer `configuracion`, así que en la vitrina esto no se
+ * usa: ahí el vencimiento ya viene aplicado adentro de v_disponibilidad.
+ */
+export async function reservaMinutos(): Promise<number> {
+  const supabase = await supabaseServer();
+  const { data } = await supabase
+    .from("configuracion")
+    .select("reserva_minutos")
+    .eq("id", true)
+    .maybeSingle();
+
+  return data?.reserva_minutos ?? 60;
+}
+
 /** La horneada que el cliente puede comprar. Null si no hay ninguna abierta. */
 export async function horneadaAbierta(): Promise<Horneada | null> {
   const supabase = await supabaseServer();

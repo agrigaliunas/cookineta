@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { FRANJAS, pill } from "@/lib/constantes";
+import { FRANJAS, pill, type FormaEntrega } from "@/lib/constantes";
 import { money } from "@/lib/money";
 import type { LineaResumen } from "@/lib/carrito";
 
 export default function Checkout({
   resumenEntrega,
+  entrega,
+  onEntrega,
+  hub,
+  envioZona,
+  envioGratisDesde,
   franjasDelDia,
   franjaIdx,
   onFranja,
@@ -20,6 +25,12 @@ export default function Checkout({
   onConfirmar,
 }: {
   resumenEntrega: string;
+  entrega: FormaEntrega;
+  onEntrega: (e: FormaEntrega) => void;
+  /** Dónde se retira: 'Martínez'. */
+  hub: string;
+  envioZona: number;
+  envioGratisDesde: number;
   franjasDelDia: number[];
   franjaIdx: number | null;
   onFranja: (i: number) => void;
@@ -42,10 +53,12 @@ export default function Checkout({
   const [direccion, setDireccion] = useState("");
   const [nota, setNota] = useState("");
 
+  const retira = entrega === "take_away";
+
   const completo =
     nombre.trim() !== "" &&
     telefono.trim() !== "" &&
-    direccion.trim() !== "" &&
+    (retira || direccion.trim() !== "") &&
     franjaIdx !== null;
 
   return (
@@ -57,7 +70,9 @@ export default function Checkout({
           onConfirmar({
             nombre: nombre.trim(),
             telefono: telefono.trim(),
-            direccion: direccion.trim(),
+            // Quien retira no manda dirección aunque haya tipeado una antes
+            // de cambiar de opción.
+            direccion: retira ? "" : direccion.trim(),
             nota: nota.trim(),
           });
         }
@@ -101,16 +116,61 @@ export default function Checkout({
           autoComplete="tel"
           requerido
         />
-        <div className="col-span-2">
-          <Campo
-            etiqueta="Dirección de entrega"
-            valor={direccion}
-            onChange={setDireccion}
-            placeholder="Av. Santa Fe 1234, piso 3 B"
-            autoComplete="street-address"
-            requerido
-          />
+        <div
+          className="field col-span-2"
+          style={{ display: "grid", gap: "var(--space-2)" }}
+        >
+          <label>¿Cómo lo recibís?</label>
+          <div
+            style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}
+          >
+            <Opcion
+              activo={!retira}
+              onClick={() => onEntrega("envio")}
+              titulo="Envío a domicilio"
+              detalle={
+                subtotal >= envioGratisDesde
+                  ? "sin cargo por el monto"
+                  : money(envioZona)
+              }
+            />
+            <Opcion
+              activo={retira}
+              onClick={() => onEntrega("take_away")}
+              titulo="Retiro en el local"
+              detalle={`${hub} · sin cargo`}
+            />
+          </div>
         </div>
+
+        {retira ? (
+          <p
+            className="col-span-2"
+            style={{
+              margin: 0,
+              fontSize: 14,
+              color: "var(--color-neutral-700)",
+              background: "var(--color-surface)",
+              borderRadius: "var(--radius-md)",
+              padding: "var(--space-3) var(--space-4)",
+              textWrap: "pretty",
+            }}
+          >
+            Lo pasás a buscar por <strong>{hub}</strong>. Te pasamos la dirección
+            exacta por WhatsApp cuando te confirmemos el pedido.
+          </p>
+        ) : (
+          <div className="col-span-2">
+            <Campo
+              etiqueta="Dirección de entrega"
+              valor={direccion}
+              onChange={setDireccion}
+              placeholder="Av. Santa Fe 1234, piso 3 B"
+              autoComplete="street-address"
+              requerido
+            />
+          </div>
+        )}
 
         <div
           className="field col-span-2"
@@ -198,7 +258,7 @@ export default function Checkout({
               color: "var(--color-neutral-600)",
             }}
           >
-            <span>Envío</span>
+            <span>{retira ? `Retiro en ${hub}` : "Envío"}</span>
             <span>{envio === 0 ? "sin cargo" : money(envio)}</span>
           </div>
         </div>
@@ -211,12 +271,12 @@ export default function Checkout({
             fontSize: 19,
           }}
         >
-          <span>Total con envío</span>
+          <span>{retira ? "Total" : "Total con envío"}</span>
           <span>{money(total)}</span>
         </div>
         <div style={{ fontSize: 12, color: "var(--color-neutral-600)" }}>
-          Subtotal {money(subtotal)}. El pago es en efectivo o transferencia al
-          recibir.
+          Subtotal {money(subtotal)}. El pago es en efectivo o transferencia al{" "}
+          {retira ? "retirar" : "recibir"}.
         </div>
       </div>
 
@@ -251,6 +311,40 @@ export default function Checkout({
         {enviando ? "Reservando…" : "Confirmar y enviar por WhatsApp"}
       </button>
     </form>
+  );
+}
+
+function Opcion({
+  activo,
+  onClick,
+  titulo,
+  detalle,
+}: {
+  activo: boolean;
+  onClick: () => void;
+  titulo: string;
+  detalle: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={activo}
+      style={{
+        cursor: "pointer",
+        textAlign: "left",
+        fontFamily: "var(--font-body)",
+        fontSize: 14,
+        padding: "var(--space-3) var(--space-4)",
+        borderRadius: "var(--radius-md)",
+        display: "grid",
+        gap: 2,
+        ...pill(activo),
+      }}
+    >
+      <span style={{ fontWeight: 600 }}>{titulo}</span>
+      <span style={{ fontSize: 12, opacity: 0.8 }}>{detalle}</span>
+    </button>
   );
 }
 

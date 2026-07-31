@@ -81,6 +81,19 @@ export function sumarDias(iso: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+/**
+ * Un `timestamptz` de Postgres → '3/8 14:35' en hora argentina.
+ *
+ * Argentina no mueve el reloj desde 2009, así que UTC-3 fijo alcanza — el mismo
+ * supuesto que hace hoyArgentina().
+ */
+export function momentoCorto(iso: string): string {
+  const arg = new Date(new Date(iso).getTime() - 3 * 60 * 60 * 1000);
+  const hh = String(arg.getUTCHours()).padStart(2, "0");
+  const mm = String(arg.getUTCMinutes()).padStart(2, "0");
+  return `${arg.getUTCDate()}/${arg.getUTCMonth() + 1} ${hh}:${mm}`;
+}
+
 /** Fecha de hoy en Argentina, como 'YYYY-MM-DD'. */
 export function hoyArgentina(): string {
   const ahora = new Date();

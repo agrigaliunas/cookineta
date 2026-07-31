@@ -50,8 +50,9 @@ export default function TablaStock({
         }}
       >
         Planificá cuántas unidades entran al horno esta horneada. Lo reservado
-        sale de los pedidos que no están cancelados, así que el planificado nunca
-        puede bajar de ahí.
+        sale de los pedidos vivos —los confirmados, más los que están sin
+        confirmar y todavía no se les venció la reserva—, así que el planificado
+        nunca puede bajar de ahí. El vencimiento se cambia en Configuración.
       </p>
 
       {error && <Aviso texto={error} onCerrar={() => setError(null)} />}
@@ -226,9 +227,9 @@ function Fila({
           }}
         >
           <BotonAjuste
-            onClick={() => ajustar(-6)}
+            onClick={() => ajustar(-1)}
             disabled={pendiente || fila.planificado <= fila.reservado}
-            etiqueta={`Restar 6 a ${fila.nombre}`}
+            etiqueta={`Restar 1 a ${fila.nombre}`}
           >
             −
           </BotonAjuste>
@@ -243,9 +244,9 @@ function Fila({
             {fila.planificado}
           </span>
           <BotonAjuste
-            onClick={() => ajustar(6)}
+            onClick={() => ajustar(1)}
             disabled={pendiente}
-            etiqueta={`Sumar 6 a ${fila.nombre}`}
+            etiqueta={`Sumar 1 a ${fila.nombre}`}
           >
             +
           </BotonAjuste>

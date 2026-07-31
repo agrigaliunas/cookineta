@@ -9,6 +9,7 @@ const TABS = [
   { href: "/admin/stock", label: "Stock" },
   { href: "/admin/combos", label: "Categorías y combos" },
   { href: "/admin/pedidos", label: "Pedidos y envíos" },
+  { href: "/admin/configuracion", label: "Configuración" },
 ];
 
 export default function TabsAdmin() {
