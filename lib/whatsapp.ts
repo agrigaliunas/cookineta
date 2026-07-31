@@ -92,7 +92,7 @@ export function mensajeNuevoPedido(p: ResumenPedido): string {
       : `Entrega: ${p.zona} (${p.hub}) — ${p.dia}, ${p.franja}`,
     // Quien retira no dio dirección: la línea directamente no va.
     retira ? null : `Dirección: ${p.direccion}`,
-    p.nota ? `Nota: ${p.nota}` : null,
+    p.nota ? `📝 Nota: ${p.nota}` : null,
     "",
     "Quedo esperando la confirmación. ¡Gracias!",
   ]
@@ -115,11 +115,11 @@ export function mensajeConfirmacion(p: {
   return [
     `¡Hola ${p.cliente}! Soy de La Cookineta 🍪`,
     "",
-    `Te confirmo el pedido *#${p.codigo}*.`,
+    `Te confirmo el pedido *#${p.codigo}* ✅.`,
     retira
       ? `Lo pasás a buscar por ${p.hub} el ${p.dia}, en la franja de ${p.franja}.`
       : `Te lo llevamos el ${p.dia} en la franja de ${p.franja}.`,
-    `Total: ${money(p.total)} (efectivo o transferencia al ${retira ? "retirar" : "recibir"}).`,
+    `Total: ${money(p.total)} (transferencia o efectivo al ${retira ? "retirar" : "recibir"}).`,
     "",
     "Te escribo el día anterior con el horario más exacto. ¡Gracias!",
   ].join("\n");
