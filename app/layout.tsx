@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Caprasimo, Figtree } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next"
 
 const caprasimo = Caprasimo({
   variable: "--font-caprasimo",
@@ -26,6 +27,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es-AR" className={`${caprasimo.variable} ${figtree.variable}`}>
+      <Analytics/>
       <body>{children}</body>
     </html>
   );
