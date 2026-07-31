@@ -1,66 +1,74 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Header from "@/components/Header";
+import Catalogo from "@/components/cliente/Catalogo";
+import { cargarCatalogo } from "@/lib/consultas";
+import { supabaseServer } from "@/lib/supabase/server";
+import { WHATSAPP_NEGOCIO, linkWhatsApp } from "@/lib/whatsapp";
 
-export default function Home() {
+// El stock cambia con cada pedido: la vitrina no se puede cachear.
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const supabase = await supabaseServer();
+  const [datos, { data: auth }] = await Promise.all([
+    cargarCatalogo(),
+    supabase.auth.getUser(),
+  ]);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "var(--color-bg)",
+        color: "var(--color-text)",
+      }}
+    >
+      <Header
+        horneadaLabel={datos?.label}
+        horneadaRango={datos?.rango}
+        vista="cliente"
+        haySesion={!!auth.user}
+      />
+      <div className="pagina">
+        {datos ? <Catalogo datos={datos} /> : <SinHorneada />}
+      </div>
+    </div>
+  );
+}
+
+function SinHorneada() {
+  return (
+    <div
+      style={{
+        maxWidth: 560,
+        display: "grid",
+        gap: "var(--space-4)",
+        padding: "var(--space-8)",
+        borderRadius: "var(--radius-lg)",
+        background: "var(--color-surface)",
+      }}
+    >
+      <h2 style={{ margin: 0, fontSize: 30 }}>La horneada todavía no abrió</h2>
+      <p style={{ margin: 0, color: "var(--color-neutral-700)" }}>
+        Cada horneada abre el domingo anterior a la semana de entrega. Volvé en
+        unos días o escribinos y te avisamos.
+      </p>
+      <a
+        href={linkWhatsApp(
+          WHATSAPP_NEGOCIO,
+          "¡Hola! Quería saber cuándo abre la próxima horneada.",
+        )}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn btn-primary"
+        style={{
+          justifySelf: "start",
+          padding: "var(--space-3) var(--space-6)",
+          textDecoration: "none",
+          color: "#fff",
+        }}
+      >
+        Escribinos por WhatsApp
+      </a>
     </div>
   );
 }

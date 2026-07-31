@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/organic-6749b666-59ed-4907-a976-50cf60735c46/styles.css">
+<script src="_ds/organic-6749b666-59ed-4907-a976-50cf60735c46/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f4f7fb;
+  --color-text: #14202e;
+  --color-accent: #17365c;
+  --color-accent-2: #c2942f;
+  --color-divider: color-mix(in srgb, #14202e 14%, transparent);
+  --color-neutral-100: #f7f9fc;
+  --color-neutral-200: #eef2f7;
+  --color-neutral-300: #dde4ec;
+  --color-neutral-400: #b9c4d1;
+  --color-neutral-500: #8b98a8;
+  --color-neutral-600: #66717f;
+  --color-neutral-700: #4a5361;
+  --color-neutral-800: #2d3542;
+  --color-neutral-900: #18202b;
+  --color-accent-100: #eef3fa;
+  --color-accent-200: #d8e4f2;
+  --color-accent-300: #b2c6e0;
+  --color-accent-400: #6c8cb5;
+  --color-accent-500: #2b5185;
+  --color-accent-600: #17365c;
+  --color-accent-700: #102845;
+  --color-accent-800: #0b1c31;
+  --color-accent-900: #071220;
+  --color-accent-2-100: #fdf7e8;
+  --color-accent-2-200: #f9ebc7;
+  --color-accent-2-300: #f0d99b;
+  --color-accent-2-400: #dfbc63;
+  --color-accent-2-500: #c2942f;
+  --color-accent-2-600: #a37a22;
+  --color-accent-2-700: #7f5e19;
+  --color-accent-2-800: #5c4412;
+  --color-accent-2-900: #3c2c0b;
+}
+body { background: var(--color-bg); }
+a { color: var(--color-accent-600); }
+a:hover { color: var(--color-accent-500); }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body)">
+
+  <div style="display: flex; align-items: center; gap: var(--space-6); justify-content: space-between; padding: var(--space-4) var(--space-8); border-bottom: 1px solid var(--color-divider); background: var(--color-bg); position: sticky; top: 0; z-index: 6">
+    <div style="display: flex; align-items: center; gap: var(--space-3)">
+      <div style="width: 44px; height: 44px; border-radius: 999px; background: var(--color-accent); color: #fff; display: grid; place-items: center; font-family: var(--font-heading); font-size: 19px">C</div>
+      <div style="display: grid; gap: 2px">
+        <div style="font-family: var(--font-heading); font-size: 21px; line-height: 1">La Cookineta</div>
+        <div style="font-size: 12px; color: var(--color-neutral-600)">Galletas de horno · Zona Norte y Zona Sur</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: var(--space-4)">
+      <div style="display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); border-radius: 999px; background: var(--color-accent-2-100); border: 1px solid var(--color-accent-2-300)">
+        <span style="font-family: var(--font-heading); font-size: 13px; color: var(--color-accent-2-800)">{{ horneadaLabel }}</span>
+        <span style="font-size: 12px; color: var(--color-accent-2-700)">{{ horneadaRange }}</span>
+      </div>
+      <div style="display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--color-neutral-200)">
+        <button type="button" onClick="{{ goCliente }}" class="btn" style="border-radius: 999px; padding: var(--space-2) var(--space-4); background: {{ clienteBg }}; color: {{ clienteFg }}; box-shadow: {{ clienteShadow }}">Cliente</button>
+        <button type="button" onClick="{{ goAdmin }}" class="btn" style="border-radius: 999px; padding: var(--space-2) var(--space-4); background: {{ adminBg }}; color: {{ adminFg }}; box-shadow: {{ adminShadow }}">Administración</button>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ isCliente }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width: 1180px; margin: 0 auto; padding: var(--space-8)">
+
+      <sc-if value="{{ stepCatalogo }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; grid-template-columns: 1fr 344px; gap: var(--space-8); align-items: start">
+
+          <div style="display: grid; gap: var(--space-8)">
+
+            <div style="display: grid; gap: var(--space-4)">
+              <div style="display: grid; gap: var(--space-1)">
+                <h2 style="font-size: 30px; margin: 0">Armá tu pedido de la horneada</h2>
+                <p style="margin: 0; color: var(--color-neutral-600); max-width: 52ch; text-wrap: pretty">Elegí tu zona y el día de entrega. Cada horneada abre el domingo anterior y las unidades se reservan por orden de pedido.</p>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4)">
+                <sc-for list="{{ zones }}" as="z" hint-placeholder-count="2">
+                  <button type="button" onClick="{{ z.select }}" style="text-align: left; cursor: pointer; font-family: var(--font-body); font-size: 14px; color: var(--color-text); padding: var(--space-6); border-radius: var(--radius-lg); background: {{ z.bg }}; border: 2px solid {{ z.border }}; display: grid; gap: var(--space-2)">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-3)">
+                      <span style="font-family: var(--font-heading); font-size: 20px">{{ z.name }}</span>
+                      <span style="width: 22px; height: 22px; border-radius: 999px; border: 2px solid {{ z.dotBorder }}; background: {{ z.dot }}"></span>
+                    </div>
+                    <div style="color: var(--color-neutral-600)">Base en {{ z.hub }} · {{ z.daysLabel }}</div>
+                    <div style="font-size: 13px; color: var(--color-accent-600)">Envío {{ z.envioLabel }}</div>
+                  </button>
+                </sc-for>
+              </div>
+
+              <sc-if value="{{ hasZone }}" hint-placeholder-val="{{ true }}">
+                <div style="display: grid; gap: var(--space-3); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface)">
+                  <div style="font-family: var(--font-heading); font-size: 15px">Días de entrega en {{ zoneHub }}</div>
+                  <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+                    <sc-for list="{{ zoneDays }}" as="d" hint-placeholder-count="3">
+                      <button type="button" onClick="{{ d.select }}" disabled="{{ d.full }}" style="cursor: pointer; font-family: var(--font-body); font-size: 14px; padding: var(--space-2) var(--space-4); border-radius: 999px; background: {{ d.bg }}; color: {{ d.fg }}; border: 1px solid {{ d.border }}; display: flex; gap: var(--space-2); align-items: baseline">
+                        <span style="font-weight: 600">{{ d.label }}</span>
+                        <span style="font-size: 12px; opacity: 0.75">{{ d.slots }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="display: grid; gap: var(--space-4)">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4)">
+                <h3 style="margin: 0; font-size: 22px">La vitrina</h3>
+                <span style="font-size: 13px; color: var(--color-neutral-600)">{{ horneadaLabel }} · {{ unitsLeftLabel }}</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4)">
+                <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
+                  <div style="display: grid; gap: var(--space-3); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-bg); border: 1px solid var(--color-divider); box-shadow: var(--shadow-sm)">
+                    <div style="position: relative; width: 100%; height: 168px; border-radius: var(--radius-md); overflow: hidden; background: var(--color-accent-2-100)">
+                      <image-slot id="foto-{{ it.id }}" shape="rect" placeholder="{{ it.name }}"></image-slot>
+                    </div>
+                    <div style="display: flex; gap: var(--space-4); align-items: flex-start">
+                      <div style="display: grid; gap: 4px">
+                        <div style="font-family: var(--font-heading); font-size: 17px; line-height: 1.15">{{ it.name }}</div>
+                        <div style="font-size: 13px; color: var(--color-neutral-600); text-wrap: pretty">{{ it.desc }}</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-3)">
+                      <div style="display: grid; gap: 2px">
+                        <span style="font-family: var(--font-heading); font-size: 18px">{{ it.priceLabel }}</span>
+                        <span style="font-size: 12px; color: {{ it.stockFg }}">{{ it.stockLabel }}</span>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: var(--space-2); padding: 4px; border-radius: 999px; background: var(--color-neutral-200)">
+                        <button type="button" onClick="{{ it.dec }}" style="width: 34px; height: 34px; border-radius: 999px; border: 0; cursor: pointer; background: var(--color-bg); color: var(--color-accent-600); font-size: 18px; line-height: 1">−</button>
+                        <span style="min-width: 20px; text-align: center; font-weight: 600">{{ it.qty }}</span>
+                        <button type="button" onClick="{{ it.inc }}" disabled="{{ it.soldOut }}" style="width: 34px; height: 34px; border-radius: 999px; border: 0; cursor: pointer; background: var(--color-accent); color: #fff; font-size: 18px; line-height: 1">+</button>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="position: sticky; top: 96px; display: grid; gap: var(--space-4); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-sm)">
+            <div style="font-family: var(--font-heading); font-size: 19px">Tu pedido</div>
+            <div style="display: grid; gap: var(--space-2); font-size: 13px; color: var(--color-neutral-700)">
+              <div>{{ deliverySummary }}</div>
+            </div>
+            <div style="height: 1px; background: var(--color-divider)"></div>
+            <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size: 14px; color: var(--color-neutral-600); padding: var(--space-4) 0">Todavía no elegiste nada. Sumá galletas desde la vitrina.</div>
+            </sc-if>
+            <div style="display: grid; gap: var(--space-3)">
+              <sc-for list="{{ cartLines }}" as="l" hint-placeholder-count="0">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); font-size: 14px">
+                  <span>{{ l.qty }}× {{ l.name }}</span>
+                  <span style="font-variant-numeric: tabular-nums">{{ l.total }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="height: 1px; background: var(--color-divider)"></div>
+            <div style="display: grid; gap: var(--space-2); font-size: 14px">
+              <div style="display: flex; justify-content: space-between"><span style="color: var(--color-neutral-600)">Subtotal</span><span>{{ subtotalLabel }}</span></div>
+              <div style="display: flex; justify-content: space-between"><span style="color: var(--color-neutral-600)">Envío</span><span>{{ envioLabel }}</span></div>
+              <div style="display: flex; justify-content: space-between; font-family: var(--font-heading); font-size: 19px; padding-top: var(--space-2)"><span>Total</span><span>{{ totalLabel }}</span></div>
+            </div>
+            <button type="button" class="btn btn-primary" onClick="{{ goCheckout }}" disabled="{{ cantCheckout }}" style="border-radius: 999px; justify-content: center; padding: var(--space-3) var(--space-4); font-size: 15px">Continuar</button>
+            <div style="font-size: 12px; color: var(--color-neutral-600); text-wrap: pretty">{{ checkoutHint }}</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ stepCheckout }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width: 720px; display: grid; gap: var(--space-6)">
+          <button type="button" class="btn" onClick="{{ backToCatalogo }}" style="justify-self: start; padding: 0; color: var(--color-accent-600)">← Volver a la vitrina</button>
+          <div style="display: grid; gap: var(--space-1)">
+            <h2 style="margin: 0; font-size: 30px">Datos de entrega</h2>
+            <p style="margin: 0; color: var(--color-neutral-600)">{{ deliverySummary }}</p>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4)">
+            <div class="field" style="display: grid; gap: var(--space-2)">
+              <label style="font-size: 13px; color: var(--color-neutral-700)">Nombre y apellido</label>
+              <input class="input" value="{{ formNombre }}" onChange="{{ setNombre }}" placeholder="Sofía Pérez" style="border-radius: 999px" />
+            </div>
+            <div class="field" style="display: grid; gap: var(--space-2)">
+              <label style="font-size: 13px; color: var(--color-neutral-700)">WhatsApp</label>
+              <input class="input" value="{{ formTel }}" onChange="{{ setTel }}" placeholder="11 5555 5555" style="border-radius: 999px" />
+            </div>
+            <div class="field" style="display: grid; gap: var(--space-2); grid-column: span 2">
+              <label style="font-size: 13px; color: var(--color-neutral-700)">Dirección de entrega</label>
+              <input class="input" value="{{ formDir }}" onChange="{{ setDir }}" placeholder="Av. Santa Fe 1234, piso 3 B" style="border-radius: 999px" />
+            </div>
+            <div class="field" style="display: grid; gap: var(--space-2); grid-column: span 2">
+              <label style="font-size: 13px; color: var(--color-neutral-700)">Franja horaria</label>
+              <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+                <sc-for list="{{ franjas }}" as="f" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ f.select }}" style="cursor: pointer; font-family: var(--font-body); font-size: 14px; padding: var(--space-2) var(--space-4); border-radius: 999px; background: {{ f.bg }}; color: {{ f.fg }}; border: 1px solid {{ f.border }}">{{ f.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div class="field" style="display: grid; gap: var(--space-2); grid-column: span 2">
+              <label style="font-size: 13px; color: var(--color-neutral-700)">Nota para la cocina (opcional)</label>
+              <input class="input" value="{{ formNota }}" onChange="{{ setNota }}" placeholder="Sin nueces, por favor" style="border-radius: 999px" />
+            </div>
+          </div>
+          <div style="display: grid; gap: var(--space-3); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface)">
+            <div style="font-family: var(--font-heading); font-size: 17px">Resumen</div>
+            <div style="display: grid; gap: var(--space-2)">
+              <sc-for list="{{ cartLines }}" as="l" hint-placeholder-count="2">
+                <div style="display: flex; justify-content: space-between; font-size: 14px"><span>{{ l.qty }}× {{ l.name }}</span><span>{{ l.total }}</span></div>
+              </sc-for>
+            </div>
+            <div style="height: 1px; background: var(--color-divider)"></div>
+            <div style="display: flex; justify-content: space-between; font-family: var(--font-heading); font-size: 19px"><span>Total con envío</span><span>{{ totalLabel }}</span></div>
+          </div>
+          <button type="button" class="btn btn-primary" onClick="{{ confirmOrder }}" disabled="{{ cantConfirm }}" style="border-radius: 999px; justify-self: start; padding: var(--space-3) var(--space-8); font-size: 15px">Confirmar pedido</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ stepOk }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width: 620px; display: grid; gap: var(--space-6); padding: var(--space-8); border-radius: var(--radius-lg); background: var(--color-surface)">
+          <div style="width: 64px; height: 64px; border-radius: 999px; background: var(--color-accent-2-300); display: grid; place-items: center; font-family: var(--font-heading); font-size: 26px; color: var(--color-accent-2-800)">✓</div>
+          <div style="display: grid; gap: var(--space-2)">
+            <h2 style="margin: 0; font-size: 30px">Pedido {{ lastOrderId }} reservado</h2>
+            <p style="margin: 0; color: var(--color-neutral-700); text-wrap: pretty">{{ lastOrderSummary }}</p>
+          </div>
+          <div style="display: grid; gap: var(--space-2); font-size: 14px; color: var(--color-neutral-700)">
+            <div>Te escribimos por WhatsApp el día anterior con el horario exacto.</div>
+            <div>El pago es en efectivo o transferencia al recibir.</div>
+          </div>
+          <button type="button" class="btn btn-secondary" onClick="{{ newOrder }}" style="border-radius: 999px; justify-self: start; padding: var(--space-3) var(--space-6)">Hacer otro pedido</button>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width: 1180px; margin: 0 auto; padding: var(--space-8); display: grid; gap: var(--space-8)">
+
+      <div style="display: grid; gap: var(--space-4)">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-6); flex-wrap: wrap">
+          <div style="display: grid; gap: var(--space-1)">
+            <h2 style="margin: 0; font-size: 30px">{{ horneadaLabel }}</h2>
+            <p style="margin: 0; color: var(--color-neutral-600)">{{ horneadaRange }} · {{ adminHeadline }}</p>
+          </div>
+          <div style="display: flex; gap: var(--space-4)">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="3">
+              <div style="display: grid; gap: 2px; padding: var(--space-3) var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface); min-width: 132px">
+                <span style="font-size: 12px; color: var(--color-neutral-600); text-transform: uppercase; letter-spacing: 0.06em">{{ k.label }}</span>
+                <span style="font-family: var(--font-heading); font-size: 22px">{{ k.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display: flex; gap: var(--space-2); border-bottom: 1px solid var(--color-divider); padding-bottom: var(--space-2)">
+          <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+            <button type="button" onClick="{{ t.select }}" style="cursor: pointer; font-family: var(--font-heading); font-size: 15px; padding: var(--space-2) var(--space-4); border-radius: 999px; border: 0; background: {{ t.bg }}; color: {{ t.fg }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <sc-if value="{{ tabPanel }}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; gap: var(--space-8)">
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4)">
+            <sc-for list="{{ panelCards }}" as="c" hint-placeholder-count="4">
+              <div style="display: grid; gap: var(--space-2); padding: var(--space-6); border-radius: var(--radius-lg); background: {{ c.bg }}; border: 1px solid var(--color-divider)">
+                <span style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-neutral-600)">{{ c.label }}</span>
+                <span style="font-family: var(--font-heading); font-size: 30px; line-height: 1">{{ c.value }}</span>
+                <span style="font-size: 13px; color: var(--color-neutral-600)">{{ c.hint }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: grid; gap: var(--space-4)">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4)">
+              <h3 style="margin: 0; font-size: 22px">Ventas agrupadas</h3>
+              <div style="display: flex; gap: var(--space-2); align-items: center">
+                <span style="font-size: 13px; color: var(--color-neutral-600)">Agrupar por</span>
+                <sc-for list="{{ groupOptions }}" as="g" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ g.select }}" style="cursor: pointer; font-family: var(--font-body); font-size: 13px; padding: var(--space-2) var(--space-4); border-radius: 999px; background: {{ g.bg }}; color: {{ g.fg }}; border: 1px solid {{ g.border }}">{{ g.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 220px 1fr 120px 130px; gap: var(--space-6); padding: 0 var(--space-6); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-neutral-500)">
+              <span>{{ groupHeader }}</span>
+              <span>Participación</span>
+              <span style="text-align: right">Unidades</span>
+              <span style="text-align: right">Ingresos</span>
+            </div>
+            <div style="display: grid; gap: var(--space-3)">
+              <sc-for list="{{ groupRows }}" as="r" hint-placeholder-count="5">
+                <div style="display: grid; grid-template-columns: 220px 1fr 120px 130px; gap: var(--space-6); align-items: center; padding: var(--space-4) var(--space-6); border-radius: var(--radius-lg); background: var(--color-bg); border: 1px solid var(--color-divider)">
+                  <div style="display: grid; gap: 2px">
+                    <span style="font-family: var(--font-heading); font-size: 16px">{{ r.label }}</span>
+                    <span style="font-size: 12px; color: var(--color-neutral-600)">{{ r.sub }}</span>
+                  </div>
+                  <div style="height: 12px; border-radius: 999px; background: var(--color-neutral-200); overflow: hidden">
+                    <div style="height: 100%; border-radius: 999px; background: {{ r.barColor }}; width: {{ r.barWidth }}"></div>
+                  </div>
+                  <span style="text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; color: var(--color-neutral-700)">{{ r.units }}</span>
+                  <span style="text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-heading); font-size: 17px">{{ r.revenue }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ tabHorneada }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; gap: var(--space-6)">
+          <p style="margin: 0; color: var(--color-neutral-600); max-width: 62ch; text-wrap: pretty">Asigná una zona y sus franjas a cada día de la horneada. Los clientes solo ven los días con zona asignada.</p>
+
+          <div style="display: grid; gap: var(--space-4); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface)">
+            <div style="display: grid; gap: var(--space-1)">
+              <h3 style="margin: 0; font-size: 19px">Precio del envío</h3>
+              <p style="margin: 0; font-size: 13px; color: var(--color-neutral-600)">Se aplica a los pedidos nuevos de cada zona. Sin cargo desde {{ envioGratisLabel }}.</p>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4)">
+              <sc-for list="{{ envioRows }}" as="z" hint-placeholder-count="2">
+                <div class="field" style="display: grid; gap: var(--space-2)">
+                  <label style="font-size: 13px; color: var(--color-neutral-700)">{{ z.name }} · {{ z.hub }}</label>
+                  <input class="input" value="{{ z.value }}" onChange="{{ z.set }}" style="border-radius: 999px" />
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display: grid; gap: var(--space-3)">
+            <sc-for list="{{ planDays }}" as="d" hint-placeholder-count="7">
+              <div style="display: grid; grid-template-columns: 150px 1fr auto; gap: var(--space-4) var(--space-6); align-items: center; padding: var(--space-4) var(--space-6); border-radius: var(--radius-lg); background: {{ d.rowBg }}; border: 1px solid var(--color-divider)">
+                <div style="display: grid; gap: 2px">
+                  <span style="font-family: var(--font-heading); font-size: 17px">{{ d.label }}</span>
+                  <span style="font-size: 12px; color: var(--color-neutral-600)">{{ d.date }}</span>
+                </div>
+                <div style="display: flex; gap: var(--space-2)">
+                  <sc-for list="{{ d.options }}" as="o" hint-placeholder-count="3">
+                    <button type="button" onClick="{{ o.select }}" style="cursor: pointer; font-family: var(--font-body); font-size: 13px; padding: var(--space-2) var(--space-4); border-radius: 999px; background: {{ o.bg }}; color: {{ o.fg }}; border: 1px solid {{ o.border }}">{{ o.label }}</button>
+                  </sc-for>
+                </div>
+                <div style="font-size: 13px; color: {{ d.statusFg }}; min-width: 130px; text-align: right">{{ d.status }}</div>
+                <span style="font-size: 12px; color: var(--color-neutral-600)">Franjas</span>
+                <div style="display: flex; flex-wrap: wrap; gap: var(--space-2); grid-column: span 2">
+                  <sc-for list="{{ d.franjas }}" as="f" hint-placeholder-count="3">
+                    <button type="button" onClick="{{ f.select }}" style="cursor: pointer; font-family: var(--font-body); font-size: 12px; padding: var(--space-1) var(--space-3); border-radius: 999px; background: {{ f.bg }}; color: {{ f.fg }}; border: 1px solid {{ f.border }}">{{ f.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ tabStock }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; gap: var(--space-6)">
+          <p style="margin: 0; color: var(--color-neutral-600); max-width: 62ch; text-wrap: pretty">Planificá cuántas unidades entran al horno esta horneada. Lo reservado sale de los pedidos confirmados.</p>
+          <table class="table" style="width: 100%">
+            <thead>
+              <tr>
+                <th style="text-align: left">Foto</th>
+                <th style="text-align: left">Producto</th>
+                <th style="text-align: right">Precio</th>
+                <th style="text-align: center">Planificado</th>
+                <th style="text-align: right">Reservado</th>
+                <th style="text-align: right">Disponible</th>
+                <th style="text-align: right">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ stockRows }}" as="r" hint-placeholder-count="6">
+                <tr>
+                  <td>
+                    <div style="position: relative; width: 64px; height: 48px; border-radius: var(--radius-sm); overflow: hidden; background: var(--color-accent-2-100)">
+                      <image-slot id="foto-{{ r.id }}" shape="rect" placeholder="Foto"></image-slot>
+                    </div>
+                  </td>
+                  <td style="font-weight: 600">{{ r.name }}</td>
+                  <td style="text-align: right; font-variant-numeric: tabular-nums">{{ r.priceLabel }}</td>
+                  <td>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: var(--space-2)">
+                      <button type="button" onClick="{{ r.less }}" style="width: 28px; height: 28px; border-radius: 999px; border: 1px solid var(--color-divider); cursor: pointer; background: var(--color-bg); color: var(--color-accent-600)">−</button>
+                      <span style="min-width: 30px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums">{{ r.planned }}</span>
+                      <button type="button" onClick="{{ r.more }}" style="width: 28px; height: 28px; border-radius: 999px; border: 1px solid var(--color-divider); cursor: pointer; background: var(--color-bg); color: var(--color-accent-600)">+</button>
+                    </div>
+                  </td>
+                  <td style="text-align: right; font-variant-numeric: tabular-nums">{{ r.reserved }}</td>
+                  <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">{{ r.available }}</td>
+                  <td style="text-align: right"><span class="tag {{ r.tagClass }}">{{ r.state }}</span></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+
+          <div style="display: grid; gap: var(--space-4); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface)">
+            <div style="display: grid; gap: var(--space-1)">
+              <h3 style="margin: 0; font-size: 19px">Nuevo producto</h3>
+              <p style="margin: 0; font-size: 13px; color: var(--color-neutral-600)">Se suma a la vitrina de la horneada actual. La foto se carga arrastrando una imagen sobre el recuadro, acá o en la tabla.</p>
+            </div>
+            <div style="display: grid; grid-template-columns: 150px 1fr; gap: var(--space-6); align-items: start">
+              <div style="position: relative; width: 150px; height: 112px; border-radius: var(--radius-md); overflow: hidden; background: var(--color-accent-2-100)">
+                <image-slot id="foto-nuevo" shape="rect" placeholder="Foto del producto"></image-slot>
+              </div>
+              <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--space-4)">
+                <div class="field" style="display: grid; gap: var(--space-2)">
+                  <label style="font-size: 13px; color: var(--color-neutral-700)">Nombre</label>
+                  <input class="input" value="{{ nuevoNombre }}" onChange="{{ setNuevoNombre }}" placeholder="Cookie de limón" style="border-radius: 999px" />
+                </div>
+                <div class="field" style="display: grid; gap: var(--space-2)">
+                  <label style="font-size: 13px; color: var(--color-neutral-700)">Precio por unidad</label>
+                  <input class="input" value="{{ nuevoPrecio }}" onChange="{{ setNuevoPrecio }}" placeholder="2300" style="border-radius: 999px" />
+                </div>
+                <div class="field" style="display: grid; gap: var(--space-2)">
+                  <label style="font-size: 13px; color: var(--color-neutral-700)">Descripción</label>
+                  <input class="input" value="{{ nuevoDesc }}" onChange="{{ setNuevoDesc }}" placeholder="Masa de limón con glaseado" style="border-radius: 999px" />
+                </div>
+                <div class="field" style="display: grid; gap: var(--space-2)">
+                  <label style="font-size: 13px; color: var(--color-neutral-700)">Unidades a hornear</label>
+                  <input class="input" value="{{ nuevoPlan }}" onChange="{{ setNuevoPlan }}" placeholder="24" style="border-radius: 999px" />
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-4)">
+              <button type="button" class="btn btn-primary" onClick="{{ addProducto }}" disabled="{{ cantAddProducto }}" style="border-radius: 999px; padding: var(--space-3) var(--space-6)">Agregar a la vitrina</button>
+              <span style="font-size: 13px; color: var(--color-neutral-600)">{{ addProductoHint }}</span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ tabEnvios }}" hint-placeholder-val="{{ false }}">
+        <div style="display: grid; gap: var(--space-6)">
+          <div style="display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center">
+            <span style="font-size: 13px; color: var(--color-neutral-600); margin-right: var(--space-2)">Filtrar</span>
+            <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+              <button type="button" onClick="{{ f.select }}" style="cursor: pointer; font-family: var(--font-body); font-size: 13px; padding: var(--space-2) var(--space-4); border-radius: 999px; background: {{ f.bg }}; color: {{ f.fg }}; border: 1px solid {{ f.border }}">{{ f.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display: grid; gap: var(--space-3)">
+            <sc-for list="{{ orderRows }}" as="o" hint-placeholder-count="4">
+              <div style="display: grid; grid-template-columns: 1fr auto; gap: var(--space-6); align-items: center; padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-bg); border: 1px solid var(--color-divider); box-shadow: var(--shadow-sm)">
+                <div style="display: grid; gap: var(--space-2)">
+                  <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap">
+                    <span style="font-family: var(--font-heading); font-size: 17px">{{ o.cliente }}</span>
+                    <span style="font-size: 12px; color: var(--color-neutral-500)">{{ o.id }}</span>
+                    <span class="tag {{ o.zoneTag }}">{{ o.zoneLabel }}</span>
+                  </div>
+                  <div style="font-size: 13px; color: var(--color-neutral-700)">{{ o.dir }} · {{ o.dia }} · {{ o.franja }}</div>
+                  <div style="font-size: 13px; color: var(--color-neutral-600)">{{ o.items }}</div>
+                </div>
+                <div style="display: grid; gap: var(--space-3); justify-items: end">
+                  <span style="font-family: var(--font-heading); font-size: 19px">{{ o.total }}</span>
+                  <div style="display: flex; align-items: center; gap: var(--space-3)">
+                    <span style="font-size: 13px; padding: var(--space-1) var(--space-3); border-radius: 999px; background: {{ o.statusBg }}; color: {{ o.statusFg }}">{{ o.status }}</span>
+                    <button type="button" class="btn btn-secondary" onClick="{{ o.advance }}" disabled="{{ o.done }}" style="border-radius: 999px; padding: var(--space-2) var(--space-4); font-size: 13px">{{ o.nextLabel }}</button>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;rolInicial&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;cliente&quot;,&quot;admin&quot;],&quot;default&quot;:&quot;cliente&quot;,&quot;tsType&quot;:&quot;'cliente' | 'admin'&quot;,&quot;section&quot;:&quot;Comportamiento&quot;},&quot;mostrarStockCliente&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Comportamiento&quot;},&quot;envioGratisDesde&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:20000,&quot;min&quot;:0,&quot;max&quot;:60000,&quot;step&quot;:1000,&quot;unit&quot;:&quot;$&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Comportamiento&quot;}}">
+const ZONES = {
+  norte: { key: 'norte', name: 'Zona Norte', hub: 'Martínez', envio: 1500 },
+  sur: { key: 'sur', name: 'Zona Sur', hub: 'Wilde', envio: 1300 }
+};
+
+const PRODUCTS = [
+  { id: 'choco', name: 'Chocotón clásica', desc: 'Chips de chocolate semiamargo, centro tierno.', price: 2200 },
+  { id: 'triple', name: 'Triple chocolate', desc: 'Cacao, chips blancos y negros.', price: 2500 },
+  { id: 'ddl', name: 'Rellena de dulce de leche', desc: 'Masa de vainilla con corazón de repostero.', price: 2600 },
+  { id: 'avena', name: 'Avena, nuez y pasas', desc: 'Menos dulce, con canela.', price: 2100 },
+  { id: 'red', name: 'Red velvet', desc: 'Con chips blancos y un toque de queso crema.', price: 2400 },
+  { id: 'caja', name: 'Caja degustación x9', desc: 'Tres de cada clásica, en caja para regalo.', price: 17500 }
+];
+
+const DAY_LIST = [
+  { key: 'lun', label: 'Lunes', date: '3 de agosto' },
+  { key: 'mar', label: 'Martes', date: '4 de agosto' },
+  { key: 'mie', label: 'Miércoles', date: '5 de agosto' },
+  { key: 'jue', label: 'Jueves', date: '6 de agosto' },
+  { key: 'vie', label: 'Viernes', date: '7 de agosto' },
+  { key: 'sab', label: 'Sábado', date: '8 de agosto' },
+  { key: 'dom', label: 'Domingo', date: '9 de agosto' }
+];
+
+const FRANJAS = ['Mañana 9 a 13', 'Tarde 14 a 18', 'Noche 18 a 21'];
+const STATUSES = ['Nuevo', 'En horno', 'En reparto', 'Entregado'];
+
+const money = (n) => '$' + n.toLocaleString('es-AR');
+
+class Component extends DCLogic {
+  state = {
+    products: PRODUCTS.slice(),
+    nuevo: { nombre: '', desc: '', precio: '', plan: '' },
+    envios: { norte: 1500, sur: 1300 },
+    role: this.props.rolInicial || 'cliente',
+    tab: 'panel',
+    group: 'producto',
+    zone: null,
+    day: null,
+    cart: {},
+    step: 'catalogo',
+    franja: FRANJAS[0],
+    form: { nombre: '', tel: '', dir: '', nota: '' },
+    lastOrder: null,
+    plan: { choco: 72, triple: 48, ddl: 36, avena: 30, red: 42, caja: 12 },
+    dayZones: { lun: 'norte', mar: 'norte', mie: 'norte', jue: 'norte', vie: 'norte', sab: 'sur', dom: 'sur' },
+    dayFranjas: { lun: [0, 1], mar: [0, 1], mie: [1], jue: [0, 1], vie: [1, 2], sab: [0, 1, 2], dom: [1, 2] },
+    filter: 'todos',
+    seq: 241,
+    orders: [
+      { id: '#238', cliente: 'Malena Ríos', zone: 'norte', day: 'mar', franja: FRANJAS[1], dir: 'Alvear 2130, Martínez', lines: { choco: 6, red: 3 }, status: 'En horno' },
+      { id: '#239', cliente: 'Diego Bustos', zone: 'norte', day: 'jue', franja: FRANJAS[0], dir: 'Paraná 480, Acassuso', lines: { caja: 1, triple: 2 }, status: 'Nuevo' },
+      { id: '#240', cliente: 'Carla Mansilla', zone: 'sur', day: 'sab', franja: FRANJAS[2], dir: 'Las Flores 1155, Wilde', lines: { ddl: 4, avena: 4 }, status: 'En reparto' },
+      { id: '#237', cliente: 'Familia Ortiz', zone: 'sur', day: 'dom', franja: FRANJAS[1], dir: 'Mitre 3320, Bernal', lines: { choco: 12 }, status: 'Entregado' }
+    ]
+  };
+
+  reservedFor(id) {
+    return this.state.orders.reduce((n, o) => n + (o.lines[id] || 0), 0);
+  }
+  available(id) {
+    return Math.max(0, (this.state.plan[id] || 0) - this.reservedFor(id));
+  }
+  ordersForDay(dayKey) {
+    return this.state.orders.filter((o) => o.day === dayKey && o.status !== 'Entregado').length;
+  }
+  envioDe(zoneKey) {
+    return this.state.envios[zoneKey] ?? ZONES[zoneKey].envio;
+  }
+  prod(id) {
+    return this.state.products.find((x) => x.id === id) || { name: 'Producto', price: 0 };
+  }
+  subtotal() {
+    return Object.entries(this.state.cart).reduce((n, [id, q]) => {
+      const p = this.prod(id);
+      return n + (p ? p.price * q : 0);
+    }, 0);
+  }
+  envio() {
+    const free = this.props.envioGratisDesde ?? 20000;
+    if (!this.state.zone) return 0;
+    return this.subtotal() >= free ? 0 : this.envioDe(this.state.zone);
+  }
+  linesLabel(lines) {
+    return Object.entries(lines)
+      .map(([id, q]) => q + '× ' + this.prod(id).name)
+      .join(' · ');
+  }
+  setNuevo(k, v) {
+    this.setState((s) => ({ nuevo: Object.assign({}, s.nuevo, { [k]: v }) }));
+  }
+  setForm(k, v) {
+    this.setState((s) => ({ form: Object.assign({}, s.form, { [k]: v }) }));
+  }
+
+  pill(on, tone) {
+    const base = tone === 'gold' ? 'accent-2' : 'accent';
+    return on
+      ? { bg: 'var(--color-' + base + '-600)', fg: '#ffffff', border: 'var(--color-' + base + '-600)' }
+      : { bg: 'var(--color-bg)', fg: 'var(--color-text)', border: 'var(--color-divider)' };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const PRODUCTS = s.products;
+    const showStock = this.props.mostrarStockCliente ?? true;
+    const zone = s.zone ? ZONES[s.zone] : null;
+    const sub = this.subtotal();
+    const env = this.envio();
+    const cartQty = Object.values(s.cart).reduce((a, b) => a + b, 0);
+
+    const daysOf = (zoneKey) => DAY_LIST.filter((d) => s.dayZones[d.key] === zoneKey);
+    const dayName = (k) => {
+      const d = DAY_LIST.find((x) => x.key === k);
+      return d ? d.label + ' ' + d.date.replace(' de agosto', '/8') : '';
+    };
+
+    const zones = Object.values(ZONES).map((z) => {
+      const on = s.zone === z.key;
+      const ds = daysOf(z.key);
+      return {
+        key: z.key,
+        name: z.name,
+        hub: z.hub,
+        daysLabel: ds.length ? ds.map((d) => d.label.slice(0, 3)).join(', ') : 'sin días esta horneada',
+        envioLabel: money(this.envioDe(z.key)),
+        bg: on ? 'var(--color-accent-100)' : 'var(--color-bg)',
+        border: on ? 'var(--color-accent-600)' : 'var(--color-divider)',
+        dot: on ? 'var(--color-accent-600)' : 'transparent',
+        dotBorder: on ? 'var(--color-accent-600)' : 'var(--color-neutral-400)',
+        select: () => this.setState({ zone: z.key, day: null })
+      };
+    });
+
+    const zoneDays = (zone ? daysOf(zone.key) : []).map((d) => {
+      const on = s.day === d.key;
+      const p = this.pill(on);
+      return {
+        label: d.label + ' ' + d.date.replace(' de agosto', '/8'),
+        slots: (s.dayFranjas[d.key] || []).map((i) => FRANJAS[i].split(' ')[0]).join(' / ') || 'sin franjas',
+        full: false,
+        bg: p.bg,
+        fg: p.fg,
+        border: p.border,
+        select: () => this.setState({ day: d.key, franja: FRANJAS[(s.dayFranjas[d.key] || [0])[0]] })
+      };
+    });
+
+    const items = PRODUCTS.map((p) => {
+      const av = this.available(p.id);
+      const qty = s.cart[p.id] || 0;
+      return {
+        id: p.id,
+        name: p.name,
+        desc: p.desc,
+        priceLabel: money(p.price),
+        qty,
+        soldOut: qty >= av,
+        stockLabel: !showStock ? 'de la horneada' : av === 0 ? 'agotada' : av <= 8 ? 'últimas ' + av : av + ' disponibles',
+        stockFg: av === 0 ? 'var(--color-neutral-500)' : av <= 8 ? 'var(--color-accent-2-700)' : 'var(--color-neutral-600)',
+        inc: () => this.setState((st) => (st.cart[p.id] || 0) >= this.available(p.id) ? {} : { cart: Object.assign({}, st.cart, { [p.id]: (st.cart[p.id] || 0) + 1 }) }),
+        dec: () => this.setState((st) => {
+          const c = Object.assign({}, st.cart);
+          if (!c[p.id]) return {};
+          c[p.id] -= 1;
+          if (c[p.id] === 0) delete c[p.id];
+          return { cart: c };
+        })
+      };
+    });
+
+    const cartLines = Object.entries(s.cart).map(([id, q]) => {
+      const p = PRODUCTS.find((x) => x.id === id);
+      return { name: p.name, qty: q, total: money(p.price * q) };
+    });
+
+    const planDays = DAY_LIST.map((d) => {
+      const assigned = s.dayZones[d.key];
+      const used = this.ordersForDay(d.key);
+      const unidades = s.orders.filter((o) => o.day === d.key && o.status !== 'Entregado')
+        .reduce((n, o) => n + Object.values(o.lines).reduce((a, b) => a + b, 0), 0);
+      return {
+        label: d.label,
+        date: d.date,
+        rowBg: assigned ? 'var(--color-bg)' : 'var(--color-neutral-100)',
+        status: !assigned ? 'Día libre' : used === 0 ? 'Sin pedidos aún' : used + ' pedidos · ' + unidades + ' unidades',
+        statusFg: !assigned ? 'var(--color-neutral-500)' : 'var(--color-neutral-700)',
+        franjas: FRANJAS.map((f, i) => {
+          const on = (s.dayFranjas[d.key] || []).indexOf(i) !== -1;
+          const p = this.pill(on, 'gold');
+          return {
+            label: f,
+            bg: p.bg, fg: p.fg, border: p.border,
+            select: () => this.setState((st) => {
+              const cur = (st.dayFranjas[d.key] || []).slice();
+              const at = cur.indexOf(i);
+              if (at === -1) cur.push(i); else cur.splice(at, 1);
+              return { dayFranjas: Object.assign({}, st.dayFranjas, { [d.key]: cur.sort() }) };
+            })
+          };
+        }),
+        options: [
+          { k: 'norte', label: 'Martínez' },
+          { k: 'sur', label: 'Wilde' },
+          { k: null, label: 'Libre' }
+        ].map((o) => {
+          const on = assigned === o.k || (!assigned && o.k === null);
+          const p = this.pill(on, o.k === 'sur' ? 'gold' : 'blue');
+          return {
+            label: o.label,
+            bg: p.bg,
+            fg: p.fg,
+            border: p.border,
+            select: () => this.setState((st) => ({ dayZones: Object.assign({}, st.dayZones, { [d.key]: o.k }) }))
+          };
+        })
+      };
+    });
+
+    const stockRows = PRODUCTS.map((p) => {
+      const res = this.reservedFor(p.id);
+      const av = this.available(p.id);
+      const ratio = s.plan[p.id] ? av / s.plan[p.id] : 0;
+      return {
+        id: p.id,
+        name: p.name,
+        priceLabel: money(p.price),
+        planned: s.plan[p.id],
+        reserved: res,
+        available: av,
+        state: av === 0 ? 'Agotado' : ratio < 0.25 ? 'Casi sin stock' : 'En stock',
+        tagClass: av === 0 ? 'tag-neutral' : ratio < 0.25 ? 'tag-accent-2' : 'tag-accent',
+        less: () => this.setState((st) => ({ plan: Object.assign({}, st.plan, { [p.id]: Math.max(this.reservedFor(p.id), st.plan[p.id] - 6) }) })),
+        more: () => this.setState((st) => ({ plan: Object.assign({}, st.plan, { [p.id]: st.plan[p.id] + 6 }) }))
+      };
+    });
+
+    const statusTone = {
+      'Nuevo': ['var(--color-accent-100)', 'var(--color-accent-700)'],
+      'En horno': ['var(--color-accent-2-200)', 'var(--color-accent-2-800)'],
+      'En reparto': ['var(--color-accent-200)', 'var(--color-accent-700)'],
+      'Entregado': ['var(--color-neutral-200)', 'var(--color-neutral-700)']
+    };
+
+    const orderRows = s.orders
+      .filter((o) => s.filter === 'todos' || o.zone === s.filter)
+      .map((o) => {
+        const i = STATUSES.indexOf(o.status);
+        const done = i === STATUSES.length - 1;
+        const total = Object.entries(o.lines).reduce((n, [id, q]) => n + this.prod(id).price * q, 0) + this.envioDe(o.zone);
+        return {
+          id: o.id,
+          cliente: o.cliente,
+          zoneLabel: ZONES[o.zone].name + ' · ' + ZONES[o.zone].hub,
+          zoneTag: o.zone === 'norte' ? 'tag-accent' : 'tag-accent-2',
+          dir: o.dir,
+          dia: dayName(o.day),
+          franja: o.franja,
+          items: this.linesLabel(o.lines),
+          total: money(total),
+          status: o.status,
+          statusBg: statusTone[o.status][0],
+          statusFg: statusTone[o.status][1],
+          done,
+          nextLabel: done ? 'Cerrado' : 'Pasar a ' + STATUSES[i + 1],
+          advance: () => this.setState((st) => ({
+            orders: st.orders.map((x) => x.id === o.id ? Object.assign({}, x, { status: STATUSES[Math.min(STATUSES.length - 1, STATUSES.indexOf(x.status) + 1)] }) : x)
+          }))
+        };
+      });
+
+    const buckets = {};
+    const push = (key, label, sub, units, revenue, tone) => {
+      if (!buckets[key]) buckets[key] = { label, sub, units: 0, revenue: 0, orders: 0, tone };
+      buckets[key].units += units;
+      buckets[key].revenue += revenue;
+    };
+    s.orders.forEach((o) => {
+      Object.entries(o.lines).forEach(([id, q]) => {
+        const p = PRODUCTS.find((x) => x.id === id);
+        const rev = p.price * q;
+        if (s.group === 'producto') push(id, p.name, money(p.price) + ' c/u', q, rev, 'blue');
+        if (s.group === 'zona') push(o.zone, ZONES[o.zone].name, ZONES[o.zone].hub, q, rev, o.zone === 'sur' ? 'gold' : 'blue');
+        if (s.group === 'dia') push(o.day, dayName(o.day), ZONES[o.zone].hub, q, rev, o.zone === 'sur' ? 'gold' : 'blue');
+      });
+    });
+    const groupList = Object.values(buckets).sort((a, b) => b.revenue - a.revenue);
+    const maxRev = groupList.reduce((m, g) => Math.max(m, g.revenue), 0) || 1;
+    const totalRev = groupList.reduce((m, g) => m + g.revenue, 0) || 1;
+    const groupRows = groupList.map((g) => ({
+      label: g.label,
+      sub: g.sub + ' · ' + Math.round((g.revenue / totalRev) * 100) + '% de los ingresos',
+      units: g.units + ' u.',
+      revenue: money(g.revenue),
+      barColor: g.tone === 'gold' ? 'var(--color-accent-2-500)' : 'var(--color-accent-500)',
+      barWidth: Math.max(4, Math.round((g.revenue / maxRev) * 100)) + '%'
+    }));
+
+    const pendientes = s.orders.filter((o) => o.status !== 'Entregado').length;
+    const entregados = s.orders.filter((o) => o.status === 'Entregado').length;
+    const envios = s.orders.reduce((n, o) => n + this.envioDe(o.zone), 0);
+    const totalPlan = PRODUCTS.reduce((n, p) => n + (s.plan[p.id] || 0), 0);
+    const unidades = s.orders.reduce((n, o) => n + Object.values(o.lines).reduce((a, b) => a + b, 0), 0);
+    const facturado = s.orders.reduce((n, o) => n + Object.entries(o.lines).reduce((m, [id, q]) => m + PRODUCTS.find((p) => p.id === id).price * q, 0), 0);
+
+    const deliverySummary = zone
+      ? (s.day ? zone.name + ' · ' + zone.hub + ' · ' + dayName(s.day) : zone.name + ' · elegí un día de entrega')
+      : 'Elegí tu zona para ver días y envío';
+
+    const canCheckout = !!zone && !!s.day && cartQty > 0;
+    const lo = s.lastOrder;
+
+    return {
+      horneadaLabel: 'Horneada 24',
+      horneadaRange: '3 al 9 de agosto',
+      isCliente: s.role === 'cliente',
+      isAdmin: s.role === 'admin',
+      goCliente: () => this.setState({ role: 'cliente' }),
+      goAdmin: () => this.setState({ role: 'admin' }),
+      clienteBg: s.role === 'cliente' ? 'var(--color-bg)' : 'transparent',
+      clienteFg: s.role === 'cliente' ? 'var(--color-accent-700)' : 'var(--color-neutral-600)',
+      clienteShadow: s.role === 'cliente' ? 'var(--shadow-sm)' : 'none',
+      adminBg: s.role === 'admin' ? 'var(--color-bg)' : 'transparent',
+      adminFg: s.role === 'admin' ? 'var(--color-accent-700)' : 'var(--color-neutral-600)',
+      adminShadow: s.role === 'admin' ? 'var(--shadow-sm)' : 'none',
+
+      stepCatalogo: s.step === 'catalogo',
+      stepCheckout: s.step === 'checkout',
+      stepOk: s.step === 'ok',
+      hasZone: !!zone,
+      zoneHub: zone ? zone.hub : '',
+      zones,
+      zoneDays,
+      items,
+      cartLines,
+      cartEmpty: cartQty === 0,
+      unitsLeftLabel: PRODUCTS.reduce((n, p) => n + this.available(p.id), 0) + ' unidades disponibles',
+      subtotalLabel: money(sub),
+      envioLabel: !zone ? '—' : env === 0 ? 'sin cargo' : money(env),
+      totalLabel: money(sub + env),
+      deliverySummary,
+      cantCheckout: !canCheckout,
+      checkoutHint: canCheckout
+        ? 'Reservás las unidades al confirmar. Envío sin cargo desde ' + money(this.props.envioGratisDesde ?? 20000) + '.'
+        : 'Necesitás zona, día y al menos una galleta para continuar.',
+      goCheckout: () => { if (canCheckout) this.setState({ step: 'checkout' }); },
+      backToCatalogo: () => this.setState({ step: 'catalogo' }),
+      franjas: (s.day ? (s.dayFranjas[s.day] || []).map((i) => FRANJAS[i]) : FRANJAS).map((f) => {
+        const p = this.pill(s.franja === f);
+        return { label: f, bg: p.bg, fg: p.fg, border: p.border, select: () => this.setState({ franja: f }) };
+      }),
+      formNombre: s.form.nombre,
+      formTel: s.form.tel,
+      formDir: s.form.dir,
+      formNota: s.form.nota,
+      setNombre: (e) => this.setForm('nombre', e.target.value),
+      setTel: (e) => this.setForm('tel', e.target.value),
+      setDir: (e) => this.setForm('dir', e.target.value),
+      setNota: (e) => this.setForm('nota', e.target.value),
+      cantConfirm: !(canCheckout && s.form.nombre.trim() && s.form.dir.trim() && s.form.tel.trim()),
+      confirmOrder: () => this.setState((st) => {
+        const id = '#' + st.seq;
+        return {
+          seq: st.seq + 1,
+          step: 'ok',
+          cart: {},
+          lastOrder: { id, day: st.day, zone: st.zone, franja: st.franja, total: sub + env },
+          orders: st.orders.concat([{
+            id,
+            cliente: st.form.nombre || 'Cliente nuevo',
+            zone: st.zone,
+            day: st.day,
+            franja: st.franja,
+            dir: st.form.dir,
+            lines: Object.assign({}, st.cart),
+            status: 'Nuevo'
+          }])
+        };
+      }),
+      lastOrderId: lo ? lo.id : '',
+      lastOrderSummary: lo
+        ? 'Entrega en ' + ZONES[lo.zone].name + ' (' + ZONES[lo.zone].hub + ') el ' + dayName(lo.day) + ', ' + lo.franja + '. Total ' + money(lo.total) + '.'
+        : '',
+      newOrder: () => this.setState({ step: 'catalogo', day: null, form: { nombre: '', tel: '', dir: '', nota: '' } }),
+
+      nuevoNombre: s.nuevo.nombre,
+      nuevoDesc: s.nuevo.desc,
+      nuevoPrecio: s.nuevo.precio,
+      nuevoPlan: s.nuevo.plan,
+      setNuevoNombre: (e) => this.setNuevo('nombre', e.target.value),
+      setNuevoDesc: (e) => this.setNuevo('desc', e.target.value),
+      setNuevoPrecio: (e) => this.setNuevo('precio', e.target.value),
+      setNuevoPlan: (e) => this.setNuevo('plan', e.target.value),
+      cantAddProducto: !(s.nuevo.nombre.trim() && Number(s.nuevo.precio) > 0),
+      addProductoHint: Number(s.nuevo.precio) > 0 && s.nuevo.nombre.trim()
+        ? 'Se agrega con ' + (Number(s.nuevo.plan) || 0) + ' unidades planificadas.'
+        : 'Necesita al menos nombre y precio.',
+      addProducto: () => this.setState((st) => {
+        const id = 'p' + Date.now().toString(36);
+        return {
+          products: st.products.concat([{
+            id,
+            name: st.nuevo.nombre.trim(),
+            desc: st.nuevo.desc.trim() || 'Novedad de la horneada.',
+            price: Number(st.nuevo.precio) || 0
+          }]),
+          plan: Object.assign({}, st.plan, { [id]: Number(st.nuevo.plan) || 0 }),
+          nuevo: { nombre: '', desc: '', precio: '', plan: '' }
+        };
+      }),
+      panelCards: [
+        { label: 'Ventas', value: String(s.orders.length), hint: entregados + ' entregadas · ' + pendientes + ' en curso', bg: 'var(--color-accent-100)' },
+        { label: 'Plata generada', value: money(facturado + envios), hint: 'incluye ' + money(envios) + ' de envíos', bg: 'var(--color-accent-2-100)' },
+        { label: 'Unidades vendidas', value: String(unidades), hint: 'de ' + totalPlan + ' planificadas', bg: 'var(--color-bg)' },
+        { label: 'Ticket promedio', value: money(s.orders.length ? Math.round((facturado + envios) / s.orders.length) : 0), hint: 'por pedido de la horneada', bg: 'var(--color-bg)' }
+      ],
+      groupOptions: [
+        { k: 'producto', label: 'Producto' },
+        { k: 'zona', label: 'Zona' },
+        { k: 'dia', label: 'Día' }
+      ].map((g) => {
+        const p = this.pill(s.group === g.k);
+        return { label: g.label, bg: p.bg, fg: p.fg, border: p.border, select: () => this.setState({ group: g.k }) };
+      }),
+      groupHeader: s.group === 'producto' ? 'Producto' : s.group === 'zona' ? 'Zona' : 'Día de entrega',
+      groupRows,
+      tabPanel: s.tab === 'panel',
+      tabs: [
+        { k: 'panel', label: 'Panel' },
+        { k: 'horneada', label: 'Horneada y zonas' },
+        { k: 'stock', label: 'Stock' },
+        { k: 'envios', label: 'Pedidos y envíos' }
+      ].map((t) => ({
+        label: t.label,
+        bg: s.tab === t.k ? 'var(--color-accent-600)' : 'var(--color-neutral-200)',
+        fg: s.tab === t.k ? '#ffffff' : 'var(--color-neutral-700)',
+        select: () => this.setState({ tab: t.k })
+      })),
+      tabHorneada: s.tab === 'horneada',
+      tabStock: s.tab === 'stock',
+      tabEnvios: s.tab === 'envios',
+      adminHeadline: pendientes + ' pedidos en curso',
+      kpis: s.tab === 'panel' ? [] : [
+        { label: 'Ventas', value: String(s.orders.length) },
+        { label: 'Unidades', value: String(unidades) },
+        { label: 'Plata generada', value: money(facturado + envios) }
+      ],
+      planDays,
+      envioRows: Object.values(ZONES).map((z) => ({
+        name: z.name,
+        hub: z.hub,
+        value: String(this.envioDe(z.key)),
+        set: (e) => {
+          const v = Math.max(0, Number(String(e.target.value).replace(/[^0-9]/g, '')) || 0);
+          this.setState((st) => ({ envios: Object.assign({}, st.envios, { [z.key]: v }) }));
+        }
+      })),
+      envioGratisLabel: money(this.props.envioGratisDesde ?? 20000),
+      stockRows,
+      filters: [
+        { k: 'todos', label: 'Todos' },
+        { k: 'norte', label: 'Zona Norte · Martínez' },
+        { k: 'sur', label: 'Zona Sur · Wilde' }
+      ].map((f) => {
+        const p = this.pill(s.filter === f.k, f.k === 'sur' ? 'gold' : 'blue');
+        return { label: f.label, bg: p.bg, fg: p.fg, border: p.border, select: () => this.setState({ filter: f.k }) };
+      }),
+      orderRows
+    };
+  }
+}
+
+</script>
+</body>
+</html>

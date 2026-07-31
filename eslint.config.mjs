@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // El prototipo original queda como referencia, no se compila ni se lintea.
+    "_mockup/**",
   ]),
 ]);
 
