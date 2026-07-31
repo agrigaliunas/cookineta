@@ -1,4 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
+import logo from "@/public/logo.png";
 
 type Props = {
   /** 'Horneada 24' */
@@ -48,21 +50,26 @@ export default function Header({
           color: "var(--color-text)",
         }}
       >
-        <div
+        {/*
+          El PNG es 1024×1536 con la chapa circular centrada y mucho margen
+          transparente arriba y abajo. `cover` sobre un cuadrado recorta ese
+          margen sobrante y deja la chapa entera; `alt` va vacío a propósito
+          porque el nombre ya está escrito al lado y si no se leería dos veces.
+        */}
+        <Image
+          src={logo}
+          alt=""
+          width={48}
+          height={48}
+          preload
           style={{
-            width: 44,
-            height: 44,
+            width: 48,
+            height: 48,
             borderRadius: 999,
-            background: "var(--color-accent)",
-            color: "#fff",
-            display: "grid",
-            placeItems: "center",
-            fontFamily: "var(--font-heading)",
-            fontSize: 19,
+            objectFit: "cover",
+            flex: "none",
           }}
-        >
-          C
-        </div>
+        />
         <div style={{ display: "grid", gap: 2 }}>
           <div
             style={{
